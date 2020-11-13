@@ -116,8 +116,6 @@ void jacobi_poisson(int N,int M,double *x,double *b)
     MPI_Allreduce(&s, &s, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
     conv = (sqrt(s)<tol);
-    if(!rank)
-      printf("Error en iteración %d: %g\n", k, sqrt(s));
 
     /* siguiente iteración */
     k = k+1;
@@ -141,7 +139,7 @@ int main(int argc, char **argv){
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   int i, j, N = 50, M = 50, ld;
-  double *x, *b, h = 0.01, f = 1.5;
+  double *x, *b, h = 0.01, f = 1.5, t1, t2;
 
   /* Extracción de argumentos */
   if (argc > 1){ /* El usuario ha indicado el valor de N */
@@ -164,9 +162,13 @@ int main(int argc, char **argv){
   }
 
   /* Resolución del sistema por el método de Jacobi */
+  t1=MPI_Wtime();
   jacobi_poisson(N, M, x, b);
+  t2=MPI_Wtime();
+  
+  if(rank==0) printf("Time: %f\n",t2-t1);
 
-  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes) */
+  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes)
   if (!rank)
     for (i=1; i<=N; i++){
       for (j = 1; j <= M; j++){
@@ -174,7 +176,7 @@ int main(int argc, char **argv){
       }
       printf("\n");
     }
-
+  */
   free(x);
   free(b);
 

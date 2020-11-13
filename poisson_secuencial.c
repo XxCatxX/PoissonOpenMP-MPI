@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
+#include "ctimer.h"
 /*
  * Un paso del método de Jacobi para la ecuación de Poisson
  *
@@ -62,7 +62,6 @@ void jacobi_poisson(int N,int M,double *x,double *b)
       }
     }
     conv = (sqrt(s)<tol);
-    printf("Error en iteración %d: %g\n", k, sqrt(s));
 
     /* siguiente iteración */
     k = k+1;
@@ -103,16 +102,19 @@ int main(int argc, char **argv)
   }
 
   /* Resolución del sistema por el método de Jacobi */
+  double elapsed, ucpu, scpu;
+  ctimer(&elapsed,&ucpu,&scpu);
   jacobi_poisson(N,M,x,b);
-
-  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes) */
+  ctimer(&elapsed,&ucpu,&scpu);
+  printf("Tiempo = %f segundos\n",elapsed);
+  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes) 
   for (i=1; i<=N; i++) {
     for (j=1; j<=M; j++) {
       printf("%g ", x[i*ld+j]);
     }
     printf("\n");
   }
-
+*/
   free(x);
   free(b);
 
