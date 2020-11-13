@@ -18,7 +18,7 @@ void jacobi_step(int N,int M,double *x,double *b,double *t)
 {
 
   int i, j, ld=M+2;
-  
+  #pragma omp parallel for private(j) schedule(runtime)
   for (i=1; i<=N; i++) {
     for (j=1; j<=M; j++) {
       t[i*ld+j] = (b[i*ld+j] + x[(i+1)*ld+j] + x[(i-1)*ld+j] + x[i*ld+(j+1)] + x[i*ld+(j-1)])/4.0;
@@ -65,7 +65,7 @@ void jacobi_poisson(int N,int M,double *x,double *b)
       }
     }
     conv = (sqrt(s)<tol);
-    printf("Error en iteración %d: %g\n", k, sqrt(s));
+    //printf("Error en iteración %d: %g\n", k, sqrt(s));
 
     /* siguiente iteración */
     k = k+1;
@@ -83,7 +83,7 @@ void jacobi_poisson(int N,int M,double *x,double *b)
 int main(int argc, char **argv)
 {
   int i, j, N=50, M=50, ld;
-  double *x, *b, h=0.01, f=1.5;
+  double *x, *b, h=0.01, f=1.5, t1, t2;
 
   /* Extracción de argumentos */
   if (argc > 1) { /* El usuario ha indicado el valor de N */
@@ -106,16 +106,21 @@ int main(int argc, char **argv)
   }
 
   /* Resolución del sistema por el método de Jacobi */
+  t1= omp_get_wtime();
+
   jacobi_poisson(N,M,x,b);
 
-  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes) */
+  t2= omp_get_wtime();
+  printf("Tiempo transcurrido: %f s.\n", t2-t1);
+
+  /* Imprimir solución (solo para comprobación, eliminar en el caso de problemas grandes) 
   for (i=1; i<=N; i++) {
     for (j=1; j<=M; j++) {
       printf("%g ", x[i*ld+j]);
     }
     printf("\n");
   }
-
+*/
   free(x);
   free(b);
 
