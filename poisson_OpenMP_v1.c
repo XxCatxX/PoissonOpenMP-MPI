@@ -18,7 +18,8 @@ void jacobi_step(int N,int M,double *x,double *b,double *t)
 {
 
   int i, j, ld=M+2;
-  #pragma omp parallel for private(j) schedule(runtime)
+  #pragma omp parallel for private(j) 
+  //schedule(runtime)
   for (i=1; i<=N; i++) {
     for (j=1; j<=M; j++) {
       t[i*ld+j] = (b[i*ld+j] + x[(i+1)*ld+j] + x[(i-1)*ld+j] + x[i*ld+(j+1)] + x[i*ld+(j-1)])/4.0;
@@ -60,7 +61,6 @@ void jacobi_poisson(int N,int M,double *x,double *b)
 
     /* criterio de parada: ||x_{k}-x_{k+1}||<tol */
     s = 0.0;
-    #pragma omp parallel for private(j) reduction(+:s)
     for (i=1; i<=N; i++) {
       for (j=1; j<=M; j++) {
         s += (x[i*ld+j]-t[i*ld+j])*(x[i*ld+j]-t[i*ld+j]);
@@ -71,7 +71,6 @@ void jacobi_poisson(int N,int M,double *x,double *b)
 
     /* siguiente iteración */
     k = k+1;
-    #pragma omp parallel for private(j)
     for (i=1; i<=N; i++) {
       for (j=1; j<=M; j++) {
         x[i*ld+j] = t[i*ld+j];
